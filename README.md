@@ -1,5 +1,3 @@
-# BlazeDemo Automation Framework
-
 ## 1. Project Overview
 
 This project is an end-to-end Selenium automation framework for the BlazeDemo flight booking application.
@@ -431,21 +429,36 @@ Examples include:
 •	Waiting for navigation to the Reserve page.
 This reduces synchronization-related failures during execution.
 ________________________________________
-11. Negative Test Observations
-The following application behaviors were observed during automation.
-Blank Credit Card
-When the Credit Card Number field is left blank, BlazeDemo proceeds to the confirmation page.
-This behavior was captured by the automated test.
-Non-Numeric Credit Card
-When non-numeric characters are entered in the Credit Card Number field, BlazeDemo proceeds to the confirmation page.
-This behavior was captured by the automated test.
-Required Fields Blank
-When passenger and payment fields are left blank, the observed application behavior was captured by the automated test using the resulting URL.
-Same Departure and Destination
-The available departure and destination dropdowns do not contain a common city.
-Therefore, the same city cannot currently be selected through the available UI options.
-The automated test verifies that there is no common city between the two dropdown lists.
-________________________________________
+## 11. Negative Test Observations
+
+The following negative scenarios were implemented and executed as specified in the
+capstone requirements.
+
+### Blank Credit Card
+The test submits the booking form with the credit card number blank.
+During execution, BlazeDemo allowed the flow to proceed to the confirmation page.
+This behavior was recorded as an observed application behavior.
+
+### Non-Numeric Credit Card
+The test submits alphabetic/non-numeric characters in the credit card field.
+During execution, BlazeDemo allowed the flow to proceed without displaying
+a validation error. This behavior was recorded as an observed application behavior.
+
+### Required Fields Blank
+The test submits the purchase form without entering the required passenger/payment
+fields. During execution, BlazeDemo allowed the flow to proceed to the confirmation
+page. This behavior was recorded as an observed application behavior.
+
+### Same Departure and Destination
+The test verifies whether the same city is available in both the departure and
+destination dropdowns.
+
+During execution, the departure and destination dropdowns contained different
+sets of cities, with no common city available. Therefore, the scenario could
+not be executed as an actual same-city booking because BlazeDemo does not provide
+a common city in both dropdowns.
+
+The test validates that no common city is available in both lists.aa________________________________________
 12. How to Run
 From Eclipse
 1.	Right-click testng.xml.
@@ -530,3 +543,14 @@ The framework supports:
 •	End-to-end flight booking automation.
 •	Smoke testing.
 •	Functional testing.
+•	Negative testing.
+•	Data-driven testing.
+•	TestNG group execution.
+•	Explicit synchronization.
+•	Maven-based test execution.
+The current automated suite has successfully completed:
+14 Tests
+14 Passed
+0 Failed
+0 Skipped
+
