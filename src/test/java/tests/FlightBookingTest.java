@@ -1,11 +1,11 @@
 package tests;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
 import org.testng.annotations.DataProvider;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 public class FlightBookingTest extends BaseTest {
 
@@ -14,8 +14,20 @@ public class FlightBookingTest extends BaseTest {
 		return new Object[][] { { "Boston", "New York" }, { "Paris", "London" }, { "Portland", "Berlin" } };
 	}
 
+	@Test(groups = { "smoke" })
+	public void TC01_verifyHomepageLoadsAndDropdownsVisible() {
+
+		Assert.assertTrue(driver.getTitle().contains("BlazeDemo"), "BlazeDemo homepage did not load");
+
+		Assert.assertTrue(driver.findElement(By.name("fromPort")).isDisplayed(),
+				"Departure city dropdown is not visible");
+
+		Assert.assertTrue(driver.findElement(By.name("toPort")).isDisplayed(),
+				"Destination city dropdown is not visible");
+	}
+
 	@Test(dataProvider = "flightData", groups = { "functional" })
-	public void multipleFlightBookingTest(String fromCity, String toCity) {
+	public void TC04_multipleBookingsWithDifferentDataSets(String fromCity, String toCity) {
 
 		homePage.searchFlights(fromCity, toCity);
 
@@ -30,7 +42,7 @@ public class FlightBookingTest extends BaseTest {
 	}
 
 	@Test(groups = { "smoke", "functional" })
-	public void searchAndSelectFlightTest() {
+	public void TC02_searchFlightsWithValidCities() {
 
 		homePage.searchFlights("Boston", "London");
 
@@ -42,7 +54,7 @@ public class FlightBookingTest extends BaseTest {
 	}
 
 	@Test(groups = { "smoke", "functional" })
-	public void completeFlightBookingTest() {
+	public void TC03_completeFlightBooking() {
 
 		// Step 1: Search for a flight
 		homePage.searchFlights("Boston", "New York");
@@ -69,10 +81,9 @@ public class FlightBookingTest extends BaseTest {
 	}
 
 	@Test(groups = { "negative" })
-	public void blankCreditCardBehaviorTest() {
+	public void TC05_blankCreditCard() {
 
 		homePage.searchFlights("Boston", "New York");
-
 		reservePage.chooseFirstFlight();
 
 		Assert.assertTrue(driver.getCurrentUrl().contains("purchase.php"), "Purchase page was not displayed");
@@ -81,19 +92,20 @@ public class FlightBookingTest extends BaseTest {
 
 		purchasePage.selectCardType("Visa");
 
+		// Intentionally leave credit card number blank
 		purchasePage.enterCardDetails("", "12", "2030", "Leelaa Vinothinie");
 
 		purchasePage.clickPurchaseFlight();
 
-		Assert.assertTrue(driver.getCurrentUrl().contains("confirmation.php"),
-				"Application did not reach confirmation page");
+		// Expected: booking should NOT be confirmed
+		Assert.assertFalse(driver.getCurrentUrl().contains("confirmation.php"),
+				"Defect: Application allowed booking without a credit card number");
 	}
 
 	@Test(groups = { "negative" })
-	public void nonNumericCreditCardTest() {
+	public void TC06_invalidCreditCardCharacters() {
 
 		homePage.searchFlights("Boston", "New York");
-
 		reservePage.chooseFirstFlight();
 
 		Assert.assertTrue(driver.getCurrentUrl().contains("purchase.php"), "Purchase page was not displayed");
@@ -102,45 +114,47 @@ public class FlightBookingTest extends BaseTest {
 
 		purchasePage.selectCardType("Visa");
 
-		// Intentionally enter non-numeric credit card value
+		// Intentionally enter invalid non-numeric card value
 		purchasePage.enterCardDetails("ABCDEF123456", "12", "2030", "Leelaa Vinothinie");
 
 		purchasePage.clickPurchaseFlight();
 
-		System.out.println("URL after non-numeric card: " + driver.getCurrentUrl());
+		// Expected: application should not confirm an invalid card
+		Assert.assertFalse(driver.getCurrentUrl().contains("confirmation.php"),
+				"Defect: Application allowed booking with non-numeric credit card");
 	}
 
 	@Test(groups = { "negative" })
 	public void requiredFieldsBlankTest() {
 
 		homePage.searchFlights("Paris", "London");
-
 		reservePage.chooseFirstFlight();
 
 		Assert.assertTrue(driver.getCurrentUrl().contains("purchase.php"), "Purchase page was not displayed");
 
-		// Leave all passenger/payment fields blank
+		// Leave all passenger and payment fields blank
 		purchasePage.clickPurchaseFlight();
 
-		System.out.println("URL after blank required fields: " + driver.getCurrentUrl());
+		// Expected: booking should NOT be confirmed
+		Assert.assertFalse(driver.getCurrentUrl().contains("confirmation.php"),
+				"Defect: Application allowed booking with required fields left blank");
 	}
 
 	@Test(groups = { "negative" })
-	public void sameDepartureDestinationTest() {
+	public void TC07_sameDepartureAndDestinationCity() {
 
 		Select departureSelect = new Select(driver.findElement(By.name("fromPort")));
-
 		Select destinationSelect = new Select(driver.findElement(By.name("toPort")));
 
 		boolean commonCityFound = false;
 
 		for (WebElement departureOption : departureSelect.getOptions()) {
 
-			String departureCity = departureOption.getText();
+			String departureCity = departureOption.getText().trim();
 
 			for (WebElement destinationOption : destinationSelect.getOptions()) {
 
-				String destinationCity = destinationOption.getText();
+				String destinationCity = destinationOption.getText().trim();
 
 				if (departureCity.equals(destinationCity)) {
 					commonCityFound = true;
@@ -153,7 +167,9 @@ public class FlightBookingTest extends BaseTest {
 			}
 		}
 
-		Assert.assertFalse(commonCityFound, "A city is available in both departure and destination lists.");
+		// Expected: No common city should be available for
+		// departure and destination in the current BlazeDemo UI.
+		Assert.assertFalse(commonCityFound, "A common city is available in both departure and destination lists.");
 	}
 
 }

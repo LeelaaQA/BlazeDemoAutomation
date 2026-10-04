@@ -1,7 +1,11 @@
 package pages;
 
+import java.time.Duration;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class ConfirmationPage {
 
@@ -14,10 +18,16 @@ public class ConfirmationPage {
 	}
 
 	public boolean isConfirmationDisplayed() {
-		return driver.findElement(confirmationMessage).isDisplayed();
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationMessage)).isDisplayed();
 	}
 
 	public String getConfirmationMessage() {
-		return driver.findElement(confirmationMessage).getText();
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(confirmationMessage)).getText();
 	}
 }
